@@ -1,0 +1,58 @@
+
+#note:
+#Please run  'chomd +x  ./ServerStart.sh' before running this script. 
+
+#!/bin/bash
+
+
+if [ $1 ];then
+ echo "Change PHP Version to $1.";
+ rm -f /usr/bin/php;
+ ln -sf /www/server/php/$1/bin/php /usr/bin/php;
+ rm -f /usr/bin/php-fpm;
+ ln -sf /www/server/php/$1/sbin/php-fpm /usr/bin/php-fpm;
+fi
+
+readonly fpmLogFolder="logs/fpm/";
+if [ ! -d "$fpmLogFolder" ]; then
+    mkdir  -p -m 777  $fpmLogFolder;
+	echo "Create Folder: $fpmLogFolder!";
+fi
+
+readonly nginxLogFolder="logs/nginx/";
+if [ ! -d "$nginxLogFolder" ]; then
+    mkdir  -p -m 777  $nginxLogFolder;
+	echo "Create Folder: $nginxLogFolder!";
+fi
+
+
+readonly accessLogFolder="logs/access/";
+if [ ! -d "$accessLogFolder" ]; then
+    mkdir  -p -m 777  $accessLogFolder;
+	echo "Create Folder: $accessLogFolder!";
+fi
+
+
+
+fpmLog=`pwd`/logs/fpm/error.log;
+fpmLog="alias fpmlog=\"tail -f $fpmLog\"";
+
+accessLog=`pwd`/logs/access/access.log;
+accessLog="alias accesslog=\"tail -f $accessLog\"";
+
+errorLog=`pwd`/logs/nginx/error.log;
+errorLog="alias errorlog=\"tail -f $errorLog\"";
+
+echo $fpmLog>/etc/profile.d/nmsnasy.sh;
+echo $accessLog>>/etc/profile.d/nmsnasy.sh;
+echo $errorLog>>/etc/profile.d/nmsnasy.sh;
+source /etc/profile.d/nmsnasy.sh;
+
+
+fpmConfig=`pwd`"/config/fpm.conf"
+pid=`ps -ef | grep php-fpm | grep $fpmConfig | awk '{print $2}'`;
+if [ "$pid" ];then
+  kill $pid;
+  echo "Restart fpm."
+fi
+php-fpm -y $fpmConfig;
