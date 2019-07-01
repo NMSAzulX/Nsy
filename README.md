@@ -8,7 +8,7 @@
 #### Initialize Project  
 
 
-You can use **init.sh** to init your project.
+&ensp;&ensp;&ensp;&ensp;You can use **init.sh** to init your project.
 
 ```bat
 
@@ -31,10 +31,12 @@ sh stop
 ```  
 
 
-#### Trace Log
+#### Trace Log  
+
 ```sh
 
-# First of all. You should restart or reopen your terminal.  Maker sure the alias command work.
+# First of all. You should restart or reopen your terminal.  
+# Maker sure the alias command work.
 
 
 # trace fpm access log.
