@@ -60,5 +60,5 @@ nginxaccess
 nginxerror
 
 ```
-
-
+Here is the result: 
+![Trace Log]()
