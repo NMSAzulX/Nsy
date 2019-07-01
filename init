@@ -1,4 +1,53 @@
-;;;;;;;;;;;;;;;;;;;;;
+#!/bin/bash
+
+while [ $# -ge 1 ] ; do
+        case "$1" in
+                -php) version="$2";shift 2;;
+                -fp) fpmPort="$2";shift 2;;
+				-np) nginxPort="$2";shift 2;;
+                *) echo "unknown parameter $1." ; exit 1 ; break;
+        esac
+done
+
+
+if [ $version ];then
+ echo "Change PHP Version to $version.";
+ rm -f /usr/bin/php;
+ ln -sf /www/server/php/$version/bin/php /usr/bin/php;
+ rm -f /usr/bin/php-fpm;
+ ln -sf /www/server/php/$version/sbin/php-fpm /usr/bin/php-fpm;
+fi
+
+
+readonly fpmLogFolder="logs/fpm/";
+if [ ! -d "$fpmLogFolder" ]; then
+    mkdir  -p -m 777  $fpmLogFolder;
+	echo "Create Folder: $fpmLogFolder!";
+fi
+
+readonly nginxLogFolder="logs/nginx/";
+if [ ! -d "$nginxLogFolder" ]; then
+    mkdir  -p -m 777  $nginxLogFolder;
+	echo "Create Folder: $nginxLogFolder!";
+fi
+
+readonly configFolder="config/";
+if [ ! -d "$configFolder" ]; then
+    mkdir  -p -m 777  $configFolder;
+	echo "Create Folder: $configFolder!";
+fi
+
+readonly aliasFolder="/home/.alias";
+if [ ! -f "$aliasFolder" ]; then
+    echo >$aliasFolder;
+    echo "Create Folder: $aliasFolder!";
+    echo "if [ -f /home/.alias ]; then
+  . /home/.alias
+fi">> /etc/bashrc
+fi
+
+
+echo ";;;;;;;;;;;;;;;;;;;;;
 ; FPM Configuration ;
 ;;;;;;;;;;;;;;;;;;;;;
 
@@ -17,14 +66,14 @@
 ;pid = /run/php/php7.2-fpm.pid
 
 ; Error log file
-; If it's set to "syslog", log is sent to syslogd instead of being written
+; If it's set to \"syslog\", log is sent to syslogd instead of being written
 ; into a local file.
 ; Note: the default prefix is /var
 ; Default Value: log/php-fpm.log
 
 
-# Config your cgi log.
-error_log = /home/project/Projects/Nsy/logs/fpm/error.log
+; Config your cgi log.
+error_log = `pwd`/logs/fpm/error.log
 
 
 
@@ -131,7 +180,7 @@ events.mechanism = epoll
 
 
 ; Start a new pool named 'www'.
-; the variable $pool can be used in any directive and will be replaced by the
+; the variable \$pool can be used in any directive and will be replaced by the
 ; pool name ('www' here)
 [www]
 
@@ -148,7 +197,7 @@ events.mechanism = epoll
 ; When not set, the global prefix (or /usr) applies instead.
 ; Note: This directive can also be relative to the global prefix.
 ; Default Value: none
-;prefix = /path/to/pools/$pool
+;prefix = /path/to/pools/\$pool
 
 ; Unix user/group of processes
 ; Note: The user is mandatory. If the group is not set, the default user's group
@@ -167,7 +216,7 @@ group = www
 ;   '/path/to/unix/socket' - to listen on a unix socket.
 ; Note: This value is mandatory.
 listen = /run/php/php7.2-fpm.sock
-listen=127.0.0.1:9001
+listen=127.0.0.1:$fpmPort
 ; Set listen(2) backlog.
 ; Default Value: 511 (-1 on FreeBSD and OpenBSD)
 ;listen.backlog = 511
@@ -328,7 +377,7 @@ pm.max_spare_servers = 3
 ;   start time           - the date and time the process has started;
 ;   start since          - the number of seconds since the process has started;
 ;   requests             - the number of requests the process has served;
-;   request duration     - the duration in µs of the requests;
+;   request duration     - the duration in Âµs of the requests;
 ;   request method       - the request method (GET, POST, ...);
 ;   request URI          - the request URI with the query string;
 ;   content length       - the content length of the request (only with POST);
@@ -389,7 +438,7 @@ pm.max_spare_servers = 3
 
 ; The access log file
 ; Default: not set
-;access.log = log/$pool.access.log
+access.log = `pwd`/logs/fpm/access.log
 
 ; The access log format.
 ; The following syntax is allowed
@@ -406,7 +455,7 @@ pm.max_spare_servers = 3
 ;      - %{mili}d
 ;      - %{microseconds}d
 ;      - %{micro}d
-;  %e: an environment variable (same as $_ENV or $_SERVER)
+;  %e: an environment variable (same as \$_ENV or \$_SERVER)
 ;      it must be associated with embraces to specify the name of the env
 ;      variable. Some exemples:
 ;      - server specifics like: %{REQUEST_METHOD}e or %{SERVER_PROTOCOL}e
@@ -447,13 +496,13 @@ pm.max_spare_servers = 3
 ;      e.g. for a ISO8601 formatted timestring, use: %{%Y-%m-%dT%H:%M:%S%z}t
 ;  %u: remote user
 ;
-; Default: "%R - %u %t \"%m %r\" %s"
-;access.format = "%R - %u %t \"%m %r%Q%q\" %s %f %{mili}d %{kilo}M %C%%"
+; Default: \"%R - %u %t \\\"%m %r\\\" %s\"
+;access.format = \"%R - %u %t \\\"%m %r%Q%q\\\" %s %f %{mili}d %{kilo}M %C%%\"
 
 ; The log file for slow requests
 ; Default Value: not set
 ; Note: slowlog is mandatory if request_slowlog_timeout is set
-;slowlog = log/$pool.log.slow
+;slowlog = log/\$pool.log.slow
 
 ; The timeout for serving a single request after which a PHP backtrace will be
 ; dumped to the 'slowlog' file. A value of '0s' means 'off'.
@@ -483,7 +532,7 @@ pm.max_spare_servers = 3
 
 ; Chroot to this directory at the start. This value must be defined as an
 ; absolute path. When this value is not set, chroot is not used.
-; Note: you can prefix with '$prefix' to chroot to the pool prefix or one
+; Note: you can prefix with '\$prefix' to chroot to the pool prefix or one
 ; of its subdirectories. If the pool prefix is not set, the global prefix
 ; will be used instead.
 ; Note: chrooting is a great security feature and should be used whenever
@@ -508,8 +557,8 @@ pm.max_spare_servers = 3
 ; Prevents arbitrary environment variables from reaching FPM worker processes
 ; by clearing the environment in workers before env vars specified in this
 ; pool configuration are added.
-; Setting to "no" will make all environment variables available to PHP code
-; via getenv(), $_ENV and $_SERVER.
+; Setting to \"no\" will make all environment variables available to PHP code
+; via getenv(), \$_ENV and \$_SERVER.
 ; Default Value: yes
 ;clear_env = no
 
@@ -521,10 +570,10 @@ pm.max_spare_servers = 3
 ; Default Value: .php
 ;security.limit_extensions = .php .php3 .php4 .php5 .php7
 
-; Pass environment variables like LD_LIBRARY_PATH. All $VARIABLEs are taken from
+; Pass environment variables like LD_LIBRARY_PATH. All \$VARIABLEs are taken from
 ; the current environment.
 ; Default Value: clean env
-;env[HOSTNAME] = $HOSTNAME
+;env[HOSTNAME] = \$HOSTNAME
 ;env[PATH] = /usr/local/bin:/usr/bin:/bin
 ;env[TMP] = /tmp
 ;env[TMPDIR] = /tmp
@@ -553,4 +602,189 @@ pm.max_spare_servers = 3
 ;php_flag[display_errors] = off
 ;php_admin_value[error_log] = /var/log/fpm-php.www.log
 ;php_admin_flag[log_errors] = on
-;php_admin_value[memory_limit] = 32M
+;php_admin_value[memory_limit] = 32M">config/fpm.conf;
+
+
+
+
+fpmErrorLog=`pwd`/logs/fpm/error.log;
+fpmErrorLog="alias fpmerror=\"tail -f $fpmErrorLog\"";
+
+fpmAccessLog=`pwd`/logs/fpm/access.log;
+fpmAccessLog="alias fpmaccess=\"tail -f $fpmAccessLog\"";
+
+accessLog=`pwd`/logs/nginx/access.log;
+accessLog="alias nginxaccess=\"tail -f $accessLog\"";
+
+errorLog=`pwd`/logs/nginx/error.log;
+errorLog="alias nginxerror=\"tail -f $errorLog\"";
+
+echo $fpmErrorLog>/home/.alias
+echo $fpmAccessLog>>/home/.alias;
+echo $accessLog>>/home/.alias;
+echo $errorLog>>/home/.alias;
+source /etc/bashrc;
+source /etc/profile;
+# --------------- NginxConfig-----------------
+
+
+echo "#centos7 宝塔环境
+
+
+# You maybe update a new user by your env.
+user www;
+
+
+worker_processes auto;
+
+events {
+	use epoll;
+	multi_accept on;
+    worker_connections 1024;
+}
+http {
+	include    /www/server/nginx/conf/mime.types;
+
+    # Using a existed path for this log.
+    error_log  `pwd`/logs/nginx/error.log;
+    error_log  `pwd`/logs/nginx/error.log  notice;
+    error_log  `pwd`/logs/nginx/error.log  info;
+    error_log  `pwd`/logs/nginx/error.log  crit;
+    fastcgi_connect_timeout 300;
+    fastcgi_send_timeout 300;
+    fastcgi_read_timeout 300;
+    fastcgi_buffer_size 64k;
+    fastcgi_buffers 4 64k;
+	fastcgi_busy_buffers_size 128k;
+    fastcgi_temp_file_write_size 256k;
+	fastcgi_intercept_errors on;
+    default_type application/octet-stream;
+	client_max_body_size 50m;
+
+
+    sendfile on;
+    tcp_nopush on;
+    keepalive_timeout 60;
+    tcp_nodelay on;
+
+    gzip on;
+    gzip_min_length 1k;
+    gzip_buffers 4 16k;
+    gzip_http_version 1.0;
+    gzip_comp_level 2;
+    gzip_types text/plain application/x-javascript text/css application/xml;
+    gzip_vary on;
+
+    server {
+
+
+        # config the port.
+        listen $nginxPort;
+        keepalive_timeout 60;
+        server_name www.demo.com demo.com;
+
+
+        # Using a existed path for your project.
+		root `pwd`;
+
+
+        # Using a existed path for this log.
+        access_log  `pwd`/logs/nginx/access.log;
+
+
+
+        location / {
+           
+            index index.html index.htm index.php;
+        }
+
+        location = /50x.html {
+            root html;
+        }
+
+        location ~ \.php\$ {
+      
+            # Config your cgi address.
+            fastcgi_pass 127.0.0.1:$fpmPort;
+
+            
+            fastcgi_index index.php;
+      		
+            fastcgi_param  SCRIPT_FILENAME    \$document_root\$fastcgi_script_name;
+            fastcgi_param  QUERY_STRING       \$query_string;
+            fastcgi_param  REQUEST_METHOD     \$request_method;
+            fastcgi_param  CONTENT_TYPE       \$content_type;
+            fastcgi_param  CONTENT_LENGTH     \$content_length;
+
+            fastcgi_param  SCRIPT_NAME        \$fastcgi_script_name;
+            fastcgi_param  REQUEST_URI        \$request_uri;
+            fastcgi_param  DOCUMENT_URI       \$document_uri;
+            fastcgi_param  DOCUMENT_ROOT      \$document_root;
+            fastcgi_param  SERVER_PROTOCOL    \$server_protocol;
+            fastcgi_param  REQUEST_SCHEME     \$scheme;
+            fastcgi_param  HTTPS              \$https if_not_empty;
+
+            fastcgi_param  GATEWAY_INTERFACE  CGI/1.1;
+            fastcgi_param  SERVER_SOFTWARE    nginx/\$nginx_version;
+
+            fastcgi_param  REMOTE_ADDR        \$remote_addr;
+            fastcgi_param  REMOTE_PORT        \$remote_port;
+            fastcgi_param  SERVER_ADDR        \$server_addr;
+            fastcgi_param  SERVER_PORT        \$server_port;
+            fastcgi_param  SERVER_NAME        \$server_name;
+
+            # PHP only, required if PHP was built with --enable-force-cgi-redirect
+            fastcgi_param  REDIRECT_STATUS    200;
+
+
+        }
+
+
+        #error_page  404              /404.html;
+        # redirect server error pages to the static page /50x.html
+        #
+
+        error_page 500 502 503 504  /50x.html;
+		
+    }
+}
+">config/nginx.conf
+
+
+
+echo "#!/bin/bash
+
+source /etc/bashrc;
+
+fpmConfig=\`pwd\`\"/config/fpm.conf\";
+pid=\`ps -ef | grep php-fpm | grep \$fpmConfig | awk '{print \$2}'\`;
+if [ \"\$pid\" ];then
+  kill \$pid;
+  echo \"Restart fpm!\";
+fi
+php-fpm -y \$fpmConfig;">start;
+
+
+
+echo "
+
+result=\`netstat -tnlp | grep :$nginxPort | grep nginx\`;
+nginxConfig=\`pwd\`/config/nginx.conf;
+if [ ! \"\$result\" ]; then
+	echo \"Start Server!\";
+ 	nginx -c \$nginxConfig;
+else
+	echo \"Restart nginx!\";
+ 	nginx -s reload -c \$nginxConfig;
+fi">>start
+
+
+echo "#!/bin/bash
+
+fpmConfig=\`pwd\`\"/config/fpm.conf\";
+pid=\`ps -ef | grep php-fpm | grep \$fpmConfig | awk '{print \$2}'\`;
+if [ \"\$pid\" ];then
+  kill \$pid;
+fi
+nginxConfig=\`pwd\`/config/nginx.conf;
+nginx -s stop -c \$nginxConfig;">stop;
