@@ -61,4 +61,4 @@ nginxerror
 
 ```
 Here is the result: 
-![Trace Log]()
+![Trace Log](https://github.com/NMSAzulX/Nsy/blob/master/Image/TraceLog.png)
