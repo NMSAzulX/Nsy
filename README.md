@@ -32,20 +32,28 @@ sh stop
 
 
 #### Trace Log
-```bat
+```sh
 
 # First of all. You should restart or reopen your terminal.  Maker sure the alias command work.
 
+
 # trace fpm access log.
+
 fpmaccess
 
+
 # trace fpm error log.
+
 fpmerror
 
-# trace nginx access log.
+
+# trace nginx access log
+
 nginxaccess
 
+
 # trace nginx error log.
+
 nginxerror
 
 ```
