@@ -8,7 +8,7 @@
 #### Initialize Project  
 
 
-&ensp;&ensp;&ensp;&ensp;You can use **init.sh** to init your project.
+&ensp;&ensp;&ensp;&ensp;You can use **init.sh** to initialize your project.
 
 ```bat
 
@@ -28,6 +28,7 @@ sh start
 # and you can stop your server with 'stop'
 
 sh stop
+
 ```  
 
 
