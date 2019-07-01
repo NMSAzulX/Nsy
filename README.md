@@ -1,8 +1,11 @@
 ## Nsy
 
-#### Environment
+#### Environment  
 
-You can build a remote develop environment according [this](https://github.com/NMSAzulX/Nsy/projects/2).
+&ensp;&ensp;&ensp;&ensp;You can build a remote develop environment according [this](https://github.com/NMSAzulX/Nsy/projects/2).  
+
+
+#### Initialize Project  
 
 
 You can use **init.sh** to init your project.
@@ -25,5 +28,26 @@ sh start
 # and you can stop your server with 'stop'
 
 sh stop
+```  
+
+
+#### Trace Log
+```bat
+
+# First of all. You should restart or reopen your terminal.  Maker sure the alias command work.
+
+# trace fpm access log.
+fpmaccess
+
+# trace fpm error log.
+fpmerror
+
+# trace nginx access log.
+nginxaccess
+
+# trace nginx error log.
+nginxerror
+
 ```
+
 
