@@ -10,7 +10,7 @@
 
 &ensp;&ensp;&ensp;&ensp;You can use **init.sh** to initialize your project.
 
-```bat
+```C#
 
 # -php  means the version of the php you are using.
 # -fp   means the port of the fastcgi
