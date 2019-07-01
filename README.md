@@ -1,6 +1,11 @@
 ## Nsy
 
-You can use init.sh to init your project.
+#### Environment
+
+You can build a remote develop environment according [this](https://github.com/NMSAzulX/Nsy/projects/2).
+
+
+You can use **init.sh** to init your project.
 
 ```bat
 
