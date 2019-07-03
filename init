@@ -608,16 +608,16 @@ access.log = `pwd`/logs/fpm/access.log
 
 
 fpmErrorLog=`pwd`/logs/fpm/error.log;
-fpmErrorLog="alias fpmerror=\"tail -f $fpmErrorLog\"";
+fpmErrorLog="alias fpmerror=\"tail -n 15 $fpmErrorLog\"";
 
 fpmAccessLog=`pwd`/logs/fpm/access.log;
-fpmAccessLog="alias fpmaccess=\"tail -f $fpmAccessLog\"";
+fpmAccessLog="alias fpmaccess=\"tail -n 15 $fpmAccessLog\"";
 
 accessLog=`pwd`/logs/nginx/access.log;
-accessLog="alias nginxaccess=\"tail -f $accessLog\"";
+accessLog="alias nginxaccess=\"tail -n 15 $accessLog\"";
 
 errorLog=`pwd`/logs/nginx/error.log;
-errorLog="alias nginxerror=\"tail -f $errorLog\"";
+errorLog="alias nginxerror=\"tail -n 15 $errorLog\"";
 
 echo $fpmErrorLog>/home/.alias
 echo $fpmAccessLog>>/home/.alias;
