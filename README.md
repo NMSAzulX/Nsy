@@ -10,7 +10,7 @@
 
 &ensp;&ensp;&ensp;&ensp;You can use **init.sh** to initialize your project.
 
-```bash
+```Shell
 
 # -php  means the version of the php you are using.
 # -fp   means the port of the fastcgi
@@ -34,7 +34,7 @@ sh stop
 
 #### Trace Log  
 
-```bash
+```Shell
 
 # First of all. You should restart or reopen your terminal.  
 # Maker sure the alias command work.
